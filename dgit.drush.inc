@@ -171,7 +171,9 @@ function drush_dgit_dl() {
   }
 }
 
-
+/**
+ * Helper function to recursively delete directories.
+ */
 function rrmdir($dir) {
   if (is_dir($dir)) {
     $objects = scandir($dir);
