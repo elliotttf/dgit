@@ -18,8 +18,6 @@ function dgit_drush_command() {
     ),
     'options' => array(
       'destination' => "Path to which the project will be copied. If you're providing a relative path, note it is relative to the drupal     root (if bootstrapped).",
-      'select' => "Select the version to download interactively from a list of available releases.",
-      'drupal-project-rename' => 'Alternate name for "drupal-x.y" directory when downloading Drupal project. Defaults to "drupal".',
     ),
     'examples' => array(
       'drush dgit-dl views',
