@@ -1,3 +1,7 @@
+Install this command in your drush/commands directory.
+
+  git clone git://github.com/elliotttf/dgit.git PATH/TO/drush/commands/dgit
+
 This drush command aids in downloading Drupal modules to source
 trees versioned by git.
 
