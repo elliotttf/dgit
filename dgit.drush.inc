@@ -162,19 +162,39 @@ function drush_dgit_dl() {
     }
 
     // Add the submodule.
-    // HACK - this is an UBER MEGA hack, will try to revisit this later when I'm
-    // not up against a time limit.
+    // TODO - figure out if there's a better way to do this than a shell exec.
     chdir(drush_locate_root());
     $mod_path = str_replace(drush_locate_root() . '/', '',    $dl_dir);
-    shell_exec('git submodule add git://git.drupal.org/project/' . $project['name'] . '.git ' . $mod_path);
+    drush_print(dt('Adding the @module submodule.', array('@module' => $project['name'])));
+    $ret = drush_shell_exec('git submodule add %s %s', 'git://git.drupal.org/project/' . $project['name'] . '.git', $mod_path);
+
+    // TODO - do a more robust check.
+    if ($ret && is_dir($dl_dir)) {
+      drush_log(dt('@module added to @path', array('@module' => $project['name'], '@path' => $dl_dir)), 'ok');
+    }
+    else {
+      return drush_set_error('Submodule failed', dt('There was a problem creating the @module submodule.', array('@module' => $project['name'])));
+    }
 
     // If the release tag isn't a tag, checkout the branch.
     chdir($dl_dir);
     if ($release['tag'] != 'master' && !preg_match('/^\d+\.x-\d+\.x$/', $release['tag'])) {
-      shell_exec('git checkout tags/' . $release['tag']);
+      drush_print(dt('Checking out the @tag tag.', array('@tag' => $release['tag'])));
+      if (drush_shell_exec('git checkout %s', 'tags/' . $release['tag'])) {
+        drush_log(dt('@module switched to @tag', array('@module' => $project['name'], '@tag' => 'tags/' . $release['tag'])), 'ok');
+      }
+      else {
+        return drush_set_error('Tag failed', dt('There was a problem switching to the specified tag.'));
+      }
     }
     else {
-      shell_exec('git checkout ' . $release['tag']);
+      drush_print(dt('Checking out the @tag branch.', array('@tag' => $release['tag'])));
+      if (drush_shell_exec('git checkout %s', $release['tag'])) {
+        drush_log(dt('@module switched to @tag', array('@module' => $project['name'], '@tag' => 'tags/' . $release['tag'])), 'ok');
+      }
+      else {
+        return drush_set_error('Branch failed', dt('There was a problem switching to the specified branch.'));
+      }
     }
   }
 }
