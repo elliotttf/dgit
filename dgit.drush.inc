@@ -162,10 +162,12 @@ function drush_dgit_dl() {
     }
 
     // Add the submodule.
-
-    // Post download actions.
-    package_handler_post_download($project);
-    drush_command_invoke_all('drush_pm_post_download', $project, $release);
+    // HACK - this is an UBER MEGA hack, will try to revisit this later when I'm
+    // not up against a time limit.
+    chdir(drush_locate_root());
+    shell_exec('git submodule add git://git.drupal.org/project/' . $project['name'] . '.git ' . str_replace(drush_locate_root() . '/', '', $dl_dir));
+    chdir($dl_dir);
+    shell_exec('git checkout tags/' . $release['tag']);
   }
 }
 
