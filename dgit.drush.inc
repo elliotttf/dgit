@@ -21,7 +21,9 @@ function dgit_drush_command() {
     ),
     'examples' => array(
       'drush dgit-dl views',
+      'drush dgit-dl --destination=sites/default/modules views',
     ),
+    'aliases' => array('gdl'),
   );
 
   return $items;
@@ -168,7 +170,7 @@ function drush_dgit_dl() {
 
     // If the release tag isn't a tag, checkout the branch.
     chdir($dl_dir);
-    if (!preg_match('/^\d+\.x-\d+\.x/', $release['tag'])) {
+    if ($release['tag'] != 'master' && !preg_match('/^\d+\.x-\d+\.x$/', $release['tag'])) {
       shell_exec('git checkout tags/' . $release['tag']);
     }
     else {
