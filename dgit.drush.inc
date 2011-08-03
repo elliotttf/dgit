@@ -86,11 +86,9 @@ function drush_dgit_dl() {
     if (!$xml) {
       continue;
     }
-    print_r($xml);
 
     // Identify the most appropriate release.
     $release = pm_parse_release($project, $xml);
-    print_r($release);
 
     if (!$release) {
       continue;
@@ -152,15 +150,18 @@ function drush_dgit_dl() {
     }
 
     // Check if install location already exists.
-    if (is_dir($project['project_install_location'])) {
-      if (!drush_confirm(dt('Install location !location already exists. Do you want to overwrite it?', array('!location' =>                   $project['project_install_location'])))) {
-        drush_log(dt("Skip installation of !project to !dest.", array('!project' => $project['name'], '!dest' =>                              $project['project_install_location'])), 'warning');
+    $dl_dir = $project['project_install_location'] . DIRECTORY_SEPARATOR . $project['project_dir'];
+    if (is_dir($dl_dir)) {
+      if (!drush_confirm(dt('Install location !location already exists. Do you want to overwrite it?', array('!location' =>                   $dl_dir)))) {
+        drush_log(dt("Skip installation of !project to !dest.", array('!project' => $project['name'], '!dest' =>                              $dl_dir)), 'warning');
         continue;
       }
       else {
-        rmdir($project['project_install_location']);
+        rrmdir($dl_dir);
       }
     }
+
+    // Add the submodule.
 
     // Post download actions.
     package_handler_post_download($project);
@@ -168,3 +169,21 @@ function drush_dgit_dl() {
   }
 }
 
+
+function rrmdir($dir) {
+  if (is_dir($dir)) {
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+      if ($object != "." && $object != "..") {
+        if (filetype($dir."/".$object) == "dir") {
+          rrmdir($dir."/".$object);
+        }
+        else {
+          unlink($dir."/".$object);
+        }
+      }
+    }
+    reset($objects);
+    rmdir($dir);
+  }
+}
