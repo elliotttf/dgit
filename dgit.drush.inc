@@ -165,9 +165,17 @@ function drush_dgit_dl() {
     // HACK - this is an UBER MEGA hack, will try to revisit this later when I'm
     // not up against a time limit.
     chdir(drush_locate_root());
-    shell_exec('git submodule add git://git.drupal.org/project/' . $project['name'] . '.git ' . str_replace(drush_locate_root() . '/', '', $dl_dir));
+    $mod_path = str_replace(drush_locate_root() . '/', '',    $dl_dir);
+    shell_exec('git submodule add git://git.drupal.org/project/' . $project['name'] . '.git ' . $mod_path);
+
+    // If the release tag isn't a tag, checkout the branch.
     chdir($dl_dir);
-    shell_exec('git checkout tags/' . $release['tag']);
+    if (!preg_match('/^\d+\.x-\d+\.x/', $release['tag'])) {
+      shell_exec('git checkout tags/' . $release['tag']);
+    }
+    else {
+      shell_exec('git checkout ' . $release['tag']);
+    }
   }
 }
 
